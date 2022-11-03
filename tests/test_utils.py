@@ -1,4 +1,4 @@
-from tensorflow.python.keras.layers import (
+from tensorflow.keras.layers import (
     Conv2D,
     Activation,
     MaxPool2D,
@@ -6,15 +6,14 @@ from tensorflow.python.keras.layers import (
     Dense,
     Input,
 )
-from tensorflow.python.keras.models import Sequential
+from tensorflow.keras.models import Sequential
 import numpy as np
 import pytest
 
-from tfkerassurgeon.utils import (
+from tf2kerassurgeon.utils import (
     find_activation_layer,
     get_shallower_nodes,
     get_inbound_nodes,
-    MeanCalculator,
 )
 
 
@@ -68,17 +67,6 @@ def test_find_activation_layer():
                                  0) == (model.get_layer('act_3'), 0)
     assert find_activation_layer(model.get_layer('dense_2'),
                                  0) == (model.get_layer('act_4'), 0)
-
-
-def test_mean_calculator():
-    mean_calculator = MeanCalculator(sum_axis=0)
-    x1 = np.array([[1, 2, 3], [4, 5, 6]])
-    x2 = np.array([[7, 8, 9], [10, 11, 12]])
-    expected_mean = np.array([5.5, 6.5, 7.5])
-    mean_calculator.add(x1)
-    mean_calculator.add(x2)
-    result = mean_calculator.calculate()
-    assert (result == expected_mean).all()
 
 
 if __name__ == '__main__':

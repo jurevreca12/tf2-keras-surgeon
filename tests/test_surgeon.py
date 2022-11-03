@@ -3,25 +3,25 @@ import os
 import tensorflow as tf
 import pytest
 import numpy as np
-import tensorflow.python.kerasbackend as K
-from tensorflow.python.keras.models import Sequential, Model
-from tensorflow.python.keras.layers import Input, Dense, Flatten
-from tensorflow.python.keras.layers import Conv1D, MaxPool1D, Cropping1D, UpSampling1D
-from tensorflow.python.keras.layers import ZeroPadding1D, AveragePooling1D, GlobalAveragePooling1D
-from tensorflow.python.keras.layers import Conv2D, MaxPool2D, Cropping2D, UpSampling2D
-from tensorflow.python.keras.layers import ZeroPadding2D, AveragePooling2D, GlobalAveragePooling2D
-from tensorflow.python.keras.layers import Conv3D, MaxPool3D, Cropping3D, UpSampling3D
-from tensorflow.python.keras.layers import ZeroPadding3D, AveragePooling3D
-from tensorflow.python.keras.layers import Add, Multiply, Average, Maximum, Concatenate
-from tensorflow.python.keras.layers import LeakyReLU, ELU, ThresholdedReLU
-from tensorflow.python.keras.layers import GaussianNoise, GaussianDropout, AlphaDropout
-from tensorflow.python.keras.layers import SimpleRNN, GRU, LSTM, BatchNormalization
+import tensorflow.python.keras.backend as K
+from tensorflow.keras.models import Sequential, Model
+from tensorflow.keras.layers import Input, Dense, Flatten
+from tensorflow.keras.layers import Conv1D, MaxPool1D, Cropping1D, UpSampling1D
+from tensorflow.keras.layers import ZeroPadding1D, AveragePooling1D, GlobalAveragePooling1D
+from tensorflow.keras.layers import Conv2D, MaxPool2D, Cropping2D, UpSampling2D
+from tensorflow.keras.layers import ZeroPadding2D, AveragePooling2D, GlobalAveragePooling2D
+from tensorflow.keras.layers import Conv3D, MaxPool3D, Cropping3D, UpSampling3D
+from tensorflow.keras.layers import ZeroPadding3D, AveragePooling3D
+from tensorflow.keras.layers import Add, Multiply, Average, Maximum, Concatenate
+from tensorflow.keras.layers import LeakyReLU, ELU, ThresholdedReLU
+from tensorflow.keras.layers import GaussianNoise, GaussianDropout, AlphaDropout
+from tensorflow.keras.layers import SimpleRNN, GRU, LSTM, BatchNormalization
 from numpy import random
 
-from tfkerassurgeon import operations
-from tfkerassurgeon import utils
-from tfkerassurgeon import Surgeon
-from tfkerassurgeon.utils import get_inbound_nodes, get_outbound_nodes
+from tf2kerassurgeon import operations
+from tf2kerassurgeon import utils
+from tf2kerassurgeon import Surgeon
+from tf2kerassurgeon.utils import get_inbound_nodes, get_outbound_nodes
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -33,7 +33,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 def clear_tf():
     yield
     K.clear_session()
-    tf.reset_default_graph()
+    tf.compat.v1.reset_default_graph()
 
 
 @pytest.fixture(params=['channels_first', 'channels_last'])
@@ -94,9 +94,9 @@ def test_delete_channels_rec_1():
 
 
 def model_3(data_format):
-    if data_format is 'channels_last':
+    if data_format == 'channels_last':
         main_input = Input(shape=[7, 7, 1])
-    elif data_format is 'channels_first':
+    elif data_format == 'channels_first':
         main_input = Input(shape=[1, 7, 7])
     else:
         raise ValueError(data_format + ' is not a valid "data_format" value.')
@@ -131,9 +131,9 @@ def model_3(data_format):
 
 
 def model_4(data_format):
-    if data_format is 'channels_last':
+    if data_format == 'channels_last':
         main_input = Input(shape=[2, 2, 1])
-    elif data_format is 'channels_first':
+    elif data_format == 'channels_first':
         main_input = Input(shape=[1, 2, 2])
     else:
         raise ValueError(data_format + ' is not a valid "data_format" value.')

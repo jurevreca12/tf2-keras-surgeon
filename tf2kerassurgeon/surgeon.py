@@ -2,11 +2,11 @@ import logging
 
 import numpy as np
 #from tensorflow.python.keras.engine.topology import Node
-from tensorflow.python.keras.layers import BatchNormalization
-from tensorflow.python.keras.models import Model
+from tensorflow.keras.layers import BatchNormalization
+from tensorflow.keras.models import Model
 
-from tfkerassurgeon import utils
-from tfkerassurgeon.utils import get_inbound_nodes
+from tf2kerassurgeon import utils
+from tf2kerassurgeon.utils import get_inbound_nodes
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -215,17 +215,17 @@ class Surgeon:
             # First check for conditions to bottom out the recursion
             # Check for replaced tensors before any other checks:
             # these are created by the surgery methods.
-            if node_output in self._replace_tensors.keys():
+            if node_output.ref() in self._replace_tensors.keys():
                 logging.debug('bottomed out at replaced output: {0}'.format(
                     node_output))
-                output, output_mask = self._replace_tensors[node_output]
+                output, output_mask = self._replace_tensors[node_output.ref()]
                 return output, output_mask
             # Next check if the current node has already been rebuilt.
             elif node in self._finished_nodes.keys():
                 logging.debug('reached finished node: {0}'.format(node))
                 return self._finished_nodes[node]
             # Next check if one of the graph_inputs has been reached.
-            elif node_output in graph_inputs:
+            elif node_output.ref() in map(lambda x:x.ref(), graph_inputs):
                 logging.debug('bottomed out at a model input')
                 output_mask = graph_input_masks[graph_inputs.index(node_output)]
                 return node_output, output_mask
@@ -275,7 +275,7 @@ class Surgeon:
         inputs = utils.single_element(inputs)
         input_masks = utils.single_element(input_masks)
         deleted_layer_output = utils.single_element(node.output_tensors)
-        self._replace_tensors[deleted_layer_output] = (inputs, input_masks)
+        self._replace_tensors[deleted_layer_output.ref()] = (inputs, input_masks)
 
     def _insert_layer(self, node, inputs, input_masks, new_layer=None):
         """Insert new_layer into the graph before node.outbound_layer."""
@@ -309,7 +309,7 @@ class Surgeon:
         new_delete_mask = self._make_delete_mask(old_layer, channels)
 
         if len(set(channels)) == getattr(old_layer, utils.get_channels_attr(old_layer)):
-            self._replace_tensors[old_layer_output] = (None, new_delete_mask)
+            self._replace_tensors[old_layer_output.ref()] = (None, new_delete_mask)
             return None
 
         # If this layer has already been operated on, use the cached copy of
@@ -327,7 +327,7 @@ class Surgeon:
             self._new_layers_map[old_layer] = new_layer
         new_output = new_layer(utils.single_element(inputs))
         # Replace the original layer's output with the modified layer's output
-        self._replace_tensors[old_layer_output] = (new_output, new_delete_mask)
+        self._replace_tensors[old_layer_output.ref()] = (new_output, new_delete_mask)
 
     def _apply_delete_mask(self, node, inbound_masks):
         """Apply the inbound delete mask and return the outbound delete mask

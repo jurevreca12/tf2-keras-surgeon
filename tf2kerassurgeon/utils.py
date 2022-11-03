@@ -2,8 +2,8 @@
 import warnings
 import numpy as np
 import collections
-from tensorflow.python.keras.layers import Layer
-from tensorflow.python.keras.activations import linear
+from tensorflow.keras.layers import Layer
+from tensorflow.keras.activations import linear
 
 
 def clean_copy(model):
@@ -62,15 +62,21 @@ def get_shallower_nodes(node):
     possible_nodes = get_outbound_nodes(node.outbound_layer)
     next_nodes = []
     for n in possible_nodes:
-        for i, node_index in enumerate(single_list(n.node_indices)):
-            if node == get_inbound_nodes(single_list(n.inbound_layers)[i])[node_index]:
+        for input_tensor in single_list(n.input_tensors):
+            layer, node_index, tensor_index = input_tensor._keras_history
+            if layer._inbound_nodes[node_index] is node:
                 next_nodes.append(n)
     return next_nodes
 
 
 def get_node_inbound_nodes(node):
-    return [get_inbound_nodes(single_list(node.inbound_layers)[i])[node_index]
-            for i, node_index in enumerate(single_list(node.node_indices))]
+    inbound_nodes = []
+    for layer in single_list(node.inbound_layers):
+        for n in get_inbound_nodes(layer):
+            for output_tensor in single_list(n.output_tensors):
+                if output_tensor.ref() in map(lambda x:x.ref(), single_list(node.input_tensors)):
+                    inbound_nodes.append(n)
+    return inbound_nodes
 
 
 def get_inbound_nodes(layer):
