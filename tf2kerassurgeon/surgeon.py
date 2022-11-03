@@ -244,7 +244,7 @@ class Surgeon:
 
                 if all(i is None for i in inputs):
                     output = None
-                    output_mask = np.zeros(node.output_shapes[0][1:], dtype=bool)
+                    output_mask = np.zeros(node.output_shapes[1:], dtype=bool)
                 elif any(i is None for i in inputs):
                     if node.outbound_layer.__class__.__name__ != 'Concatenate':
                         TypeError('Inputs can only be missing for concatenate layers.')

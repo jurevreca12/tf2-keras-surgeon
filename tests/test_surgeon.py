@@ -1,4 +1,5 @@
 import os
+import json
 
 import tensorflow as tf
 import pytest
@@ -900,7 +901,7 @@ def compare_models(model_1, model_2):
     config_1 = model_1.get_config()
     config_2 = model_2.get_config()
     config_2['name'] = config_1['name']  # make the config names identical
-    config_match = (config_1 == config_2)
+    config_match = (json.dumps(config_1) == json.dumps(config_2))
     weights_match = (all([np.array_equal(weight_1, weight_2)
                           for (weight_1, weight_2) in
                           zip(model_1.get_weights(), model_2.get_weights())]))
@@ -910,7 +911,7 @@ def compare_models(model_1, model_2):
 def compare_models_seq(model_1, model_2):
     config_1 = model_1.get_config()
     config_2 = model_2.get_config()
-    config_match = (config_1 == config_2)
+    config_match = (json.dumps(config_1) == json.dumps(config_2))
     weights_match = (all([np.array_equal(weight_1, weight_2)
                           for (weight_1, weight_2) in
                           zip(model_1.get_weights(), model_2.get_weights())]))
