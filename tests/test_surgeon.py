@@ -64,9 +64,9 @@ def model_1():
 
 
 @pytest.fixture
-def model_2():
+def model_2(model_1):
     """Basic Lenet-style model test fixture with minimal channels"""
-    model = model_1()
+    model = model_1
     return Model(model.inputs, model.outputs)
 
 
@@ -844,7 +844,7 @@ def test_delete_channels_downstream_sharing():
     config_1 = model_2.get_config()
     config_2 = model_2_exp.get_config()
     config_2['name'] = config_1['name']  # make the config names identical
-    assert config_1 == config_2
+    assert json.dumps(config_1) ==  json.dumps(config_2)
 
 
 def test_delete_all_channels_in_branch():
@@ -868,7 +868,7 @@ def test_delete_all_channels_in_branch():
     config_1 = model_2.get_config()
     config_2 = model_2_exp.get_config()
     config_2['name'] = config_1['name']  # make the config names identical
-    assert config_1 == config_2
+    assert json.dumps(config_1) == json.dumps(config_2)
 
 
 def test_delete_all_channels_in_long_branch():
@@ -894,7 +894,7 @@ def test_delete_all_channels_in_long_branch():
     config_1 = model_2.get_config()
     config_2 = model_2_exp.get_config()
     config_2['name'] = config_1['name']  # make the config names identical
-    assert config_1 == config_2
+    assert json.dumps(config_1) == json.dumps(config_2)
 
 
 def compare_models(model_1, model_2):
