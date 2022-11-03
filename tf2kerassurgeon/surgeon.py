@@ -227,7 +227,10 @@ class Surgeon:
             # Next check if one of the graph_inputs has been reached.
             elif node_output.ref() in map(lambda x:x.ref(), graph_inputs):
                 logging.debug('bottomed out at a model input')
-                output_mask = graph_input_masks[graph_inputs.index(node_output)]
+                node_output_ref = node_output.ref()
+                graph_inputs_ref = [x.ref() for x in graph_inputs]
+                graph_inputs_index = graph_inputs_ref.index(node_output_ref)
+                output_mask = graph_input_masks[graph_inputs_index]
                 return node_output, output_mask
             # Otherwise recursively call this method on the inbound nodes.
             else:
