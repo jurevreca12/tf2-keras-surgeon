@@ -288,7 +288,7 @@ class Surgeon:
         # Replace the inbound layer's output with the new layer's output
         old_output = node.input_tensors[0]
         input_masks = utils.single_element(input_masks)
-        self._replace_tensors[old_output] = (new_output, input_masks)
+        self._replace_tensors[old_output.ref()] = (new_output, input_masks)
 
     def _replace_layer(self, node, inputs, input_masks, new_layer=None):
         """Replace node.outbound_layer with new_layer. Add it to the graph."""
@@ -298,7 +298,7 @@ class Surgeon:
         # Replace the original layer's output with the new layer's output
         replaced_layer_output = utils.single_element(node.output_tensors)
         input_masks = utils.single_element(input_masks)
-        self._replace_tensors[replaced_layer_output] = (new_output, input_masks)
+        self._replace_tensors[replaced_layer_output.ref()] = (new_output, input_masks)
 
     def _delete_channels(self, node, inputs, input_masks, channels=None, layer_name=None):
         """Delete selected channels of node.outbound_layer. Add it to the graph.
@@ -558,7 +558,7 @@ class Surgeon:
             # Get slice of mask with all singleton dimensions except
             # channels dimension
             index = [0] * (len(input_shape))
-            index[layer.axis] = slice(None)
+            index[layer.axis[0]] = slice(None)
             index = index[1:]
             # TODO: Maybe use channel indices everywhere instead of masks?
             channel_indices = np.where(inbound_masks[tuple(index)] == False)[0]
@@ -567,7 +567,7 @@ class Surgeon:
             new_layer = BatchNormalization.from_config(
                 layer.get_config())
             new_input_shape = list(input_shape)
-            new_input_shape[new_layer.axis] -= len(channel_indices)
+            new_input_shape[new_layer.axis[0]] -= len(channel_indices)
             new_layer.build(new_input_shape)
             new_layer.set_weights(weights)
 
